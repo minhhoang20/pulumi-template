@@ -1,8 +1,6 @@
-name: Pulumi
+name: PR
 on:
-  push:
-    branches:
-      - main
+  - pull_request
 jobs:
   up:
     name: Update
