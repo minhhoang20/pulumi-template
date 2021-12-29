@@ -11,10 +11,19 @@ namespace PulumiTemplate
     public class TemplateStack : Stack
     {
         public const string ProjectName = "plm-template";
+        public const string PlainProjectName = "plmtemplate";
         public const string Location = "centralus";
+
+        public string EnvironmentName { get; set; }
+        public string DeploymentName { get; set; }
 
         public TemplateStack()
         {
+            var config = new Config();
+            string environmentName = config.Require("ENVIRONMENT_NAME");
+            this.EnvironmentName = environmentName;
+            this.DeploymentName = $"{ProjectName}-{this.EnvironmentName}";
+
             var subscriptionOutput = Output.Create(Authorization.GetClientConfig.InvokeAsync());
             Output.All(subscriptionOutput).Apply(resolveds =>
             {
@@ -32,14 +41,14 @@ namespace PulumiTemplate
             string tenantId = clientConfig.TenantId;
             string primaryUserSid = clientConfig.ObjectId;
 
-            string resourceGroupName = $"{ProjectName}-rg";
+            string resourceGroupName = $"{this.DeploymentName}-rg";
             var resourceGroup = new Resources.ResourceGroup("rg", new Resources.ResourceGroupArgs
             {
                 ResourceGroupName = resourceGroupName,
                 Location = Location
             });
 
-            string storageAccountName = "plmtemplatesa";
+            string storageAccountName = $"{PlainProjectName}sa";
             var storageAccount = new Storage.StorageAccount("sa", new Storage.StorageAccountArgs
             {
                 AccountName = storageAccountName,
@@ -52,7 +61,7 @@ namespace PulumiTemplate
                 Kind = Storage.Kind.StorageV2,
             });
 
-            string sqlServerName = $"{ProjectName}-sqlsvr";
+            string sqlServerName = $"{this.DeploymentName}-sqlsvr";
             var sqlServer = new Sql.Server("sqlsvr", new Sql.ServerArgs
             {
                 ServerName = sqlServerName,
@@ -70,7 +79,7 @@ namespace PulumiTemplate
                 ResourceGroupName = resourceGroup.Name
             });
 
-            string sqlDbName = $"{ProjectName}-sqldb";
+            string sqlDbName = $"{this.DeploymentName}-sqldb";
             var sqlDatabase = new Sql.Database("sqldb", new Sql.DatabaseArgs
             {
                 DatabaseName = sqlDbName,
@@ -83,7 +92,7 @@ namespace PulumiTemplate
                 }
             });
 
-            string keyVaultName = $"{ProjectName}-kv";
+            string keyVaultName = $"{this.DeploymentName}-kv";
             var keyVault = new KeyVault.Vault("kv", new KeyVault.VaultArgs
             {
                 VaultName = keyVaultName,
@@ -161,7 +170,7 @@ namespace PulumiTemplate
                 }
             });
 
-            string appServicePlanName = $"{ProjectName}-asp";
+            string appServicePlanName = $"{this.DeploymentName}-asp";
             var appServicePlan = new Web.AppServicePlan("asp", new Web.AppServicePlanArgs
             {
                 Name = appServicePlanName,
@@ -178,7 +187,7 @@ namespace PulumiTemplate
                 },
             });
 
-            string appServiceName = $"{ProjectName}-app";
+            string appServiceName = $"{this.DeploymentName}-app";
             var webApp = new Web.WebApp("app", new Web.WebAppArgs
             {
                 Name = appServiceName,
