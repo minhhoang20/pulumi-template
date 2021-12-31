@@ -21,10 +21,9 @@ namespace PulumiTemplate
         public TemplateStack()
         {
             var config = new Config();
-            string environmentName = string.IsNullOrEmpty(config.Get("EnvironmentName")) ? config.Get("EnvironmentName")! : string.Empty;
-            Console.WriteLine($"Environment name: {environmentName}");
+            string environmentName = config.Require("EnvironmentName");
             this.EnvironmentName = environmentName;
-            string environmentSuffix = string.IsNullOrEmpty(environmentName) ? $"-{environmentName}" : string.Empty;
+            string environmentSuffix = !string.IsNullOrEmpty(environmentName) ? $"-{environmentName}" : string.Empty;
             this.DeploymentName = $"{ProjectName}{environmentSuffix}";
 
             var subscriptionOutput = Output.Create(Authorization.GetClientConfig.InvokeAsync());
