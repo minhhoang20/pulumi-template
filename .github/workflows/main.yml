@@ -18,6 +18,8 @@ jobs:
       - uses: pulumi/actions@v3
         with:
           command: config
+          stack-name: hlm-innovation/pulumi-template
+          work-dir: ./PulumiTemplate/PulumiTemplate
           set: EnvironmentName ${{ secrets.ENVIRONMENT_NAME }}
       - uses: pulumi/actions@v3
         with:
