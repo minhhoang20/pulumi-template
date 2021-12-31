@@ -17,10 +17,9 @@ jobs:
           dotnet-version: 6.0.x
       - uses: pulumi/actions@v3
         with:
-          command: config
+          command: config set EnvironmentName ${{ secrets.ENVIRONMENT_NAME }}
           stack-name: hlm-innovation/pulumi-template
           work-dir: ./PulumiTemplate/PulumiTemplate
-          set: EnvironmentName ${{ secrets.ENVIRONMENT_NAME }}
       - uses: pulumi/actions@v3
         with:
           command: up
