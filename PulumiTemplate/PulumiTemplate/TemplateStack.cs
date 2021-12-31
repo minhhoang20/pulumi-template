@@ -5,11 +5,13 @@ using Storage = Pulumi.AzureNative.Storage;
 using Sql = Pulumi.AzureNative.Sql;
 using KeyVault = Pulumi.AzureNative.KeyVault;
 using Web = Pulumi.AzureNative.Web;
+using System.Diagnostics;
 
 namespace PulumiTemplate
 {
     public class TemplateStack : Stack
     {
+        public const string StackPrefix = "az-plm";
         public const string ProjectName = "plm-template";
         public const string PlainProjectName = "plmtemplate";
         public const string Location = "centralus";
@@ -19,8 +21,13 @@ namespace PulumiTemplate
 
         public TemplateStack()
         {
+            while (!Debugger.IsAttached)
+            {
+                Thread.Sleep(100);
+            }
+
             var config = new Config();
-            string environmentName = config.Require("ENVIRONMENT_NAME");
+            string environmentName = config.Require($"{StackPrefix}:ENVIRONMENT_NAME");
             this.EnvironmentName = environmentName;
             this.DeploymentName = $"{ProjectName}-{this.EnvironmentName}";
 
