@@ -17,6 +17,7 @@ namespace PulumiTemplate
 
         public string EnvironmentName { get; set; }
         public string DeploymentName { get; set; }
+        public string PlainDeploymentName { get; set; }
 
         public TemplateStack()
         {
@@ -25,6 +26,7 @@ namespace PulumiTemplate
             this.EnvironmentName = environmentName;
             string environmentSuffix = !string.IsNullOrEmpty(environmentName) ? $"-{environmentName}" : string.Empty;
             this.DeploymentName = $"{ProjectName}{environmentSuffix}";
+            this.PlainDeploymentName = $"{PlainProjectName}{this.EnvironmentName}";
 
             var subscriptionOutput = Output.Create(Authorization.GetClientConfig.InvokeAsync());
             Output.All(subscriptionOutput).Apply(resolveds =>
@@ -50,7 +52,7 @@ namespace PulumiTemplate
                 Location = Location
             });
 
-            string storageAccountName = $"{PlainProjectName}sa";
+            string storageAccountName = $"{this.PlainDeploymentName}sa";
             var storageAccount = new Storage.StorageAccount("sa", new Storage.StorageAccountArgs
             {
                 AccountName = storageAccountName,
@@ -102,64 +104,65 @@ namespace PulumiTemplate
                 ResourceGroupName = resourceGroup.Name,
                 Properties = new KeyVault.Inputs.VaultPropertiesArgs
                 {
+                    EnableSoftDelete = true,
                     AccessPolicies =
-                {
-                    new KeyVault.Inputs.AccessPolicyEntryArgs
                     {
-                        ObjectId = primaryUserSid,
-                        Permissions = new KeyVault.Inputs.PermissionsArgs
+                        new KeyVault.Inputs.AccessPolicyEntryArgs
                         {
-                            Certificates =
+                            ObjectId = primaryUserSid,
+                            Permissions = new KeyVault.Inputs.PermissionsArgs
                             {
-                                "get",
-                                "list",
-                                "delete",
-                                "create",
-                                "import",
-                                "update",
-                                "managecontacts",
-                                "getissuers",
-                                "listissuers",
-                                "setissuers",
-                                "deleteissuers",
-                                "manageissuers",
-                                "recover",
-                                "purge",
+                                Certificates =
+                                {
+                                    "get",
+                                    "list",
+                                    "delete",
+                                    "create",
+                                    "import",
+                                    "update",
+                                    "managecontacts",
+                                    "getissuers",
+                                    "listissuers",
+                                    "setissuers",
+                                    "deleteissuers",
+                                    "manageissuers",
+                                    "recover",
+                                    "purge",
+                                },
+                                Keys =
+                                {
+                                    "encrypt",
+                                    "decrypt",
+                                    "wrapKey",
+                                    "unwrapKey",
+                                    "sign",
+                                    "verify",
+                                    "get",
+                                    "list",
+                                    "create",
+                                    "update",
+                                    "import",
+                                    "delete",
+                                    "backup",
+                                    "restore",
+                                    "recover",
+                                    "purge",
+                                },
+                                Secrets =
+                                {
+                                    "get",
+                                    "list",
+                                    "set",
+                                    "delete",
+                                    "backup",
+                                    "restore",
+                                    "recover",
+                                    "purge",
+                                },
                             },
-                            Keys =
-                            {
-                                "encrypt",
-                                "decrypt",
-                                "wrapKey",
-                                "unwrapKey",
-                                "sign",
-                                "verify",
-                                "get",
-                                "list",
-                                "create",
-                                "update",
-                                "import",
-                                "delete",
-                                "backup",
-                                "restore",
-                                "recover",
-                                "purge",
-                            },
-                            Secrets =
-                            {
-                                "get",
-                                "list",
-                                "set",
-                                "delete",
-                                "backup",
-                                "restore",
-                                "recover",
-                                "purge",
-                            },
+                            TenantId = tenantId,
                         },
-                        TenantId = tenantId,
                     },
-                },
                     EnabledForDeployment = true,
                     EnabledForDiskEncryption = true,
                     EnabledForTemplateDeployment = true,
@@ -189,10 +192,10 @@ namespace PulumiTemplate
                 },
             });
 
-            string appServiceName = $"{this.DeploymentName}-app";
+            string appName = $"{this.DeploymentName}-app";
             var webApp = new Web.WebApp("app", new Web.WebAppArgs
             {
-                Name = appServiceName,
+                Name = appName,
                 ResourceGroupName = resourceGroup.Name,
                 Location = Location,
                 ClientAffinityEnabled = true,
@@ -206,6 +209,9 @@ namespace PulumiTemplate
                         AllowedOrigins = "*"
                     }
                 }
+            }, new CustomResourceOptions
+            {
+                DependsOn = new[] { appServicePlan }
             });
         }
     }
