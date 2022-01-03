@@ -94,6 +94,9 @@ namespace PulumiTemplate
                 {
                     Name = "S3"
                 }
+            }, new CustomResourceOptions
+            {
+                DependsOn = { sqlServer }
             });
 
             string keyVaultName = $"{this.DeploymentName}-kv";
@@ -211,7 +214,7 @@ namespace PulumiTemplate
                 }
             }, new CustomResourceOptions
             {
-                DependsOn = new[] { appServicePlan }
+                DependsOn = { appServicePlan }
             });
         }
     }
