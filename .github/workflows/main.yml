@@ -41,7 +41,7 @@ jobs:
       - uses: pulumi/actions@v3
         with:
           command: up
-          stack-name: hlm-innovation/pulumi-template
+          stack-name: hlm-innovation/pulumi-template-uat
           work-dir: ./PulumiTemplate/PulumiTemplate
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -64,7 +64,7 @@ jobs:
       - uses: pulumi/actions@v3
         with:
           command: up
-          stack-name: hlm-innovation/pulumi-template
+          stack-name: hlm-innovation/pulumi-template-prod
           work-dir: ./PulumiTemplate/PulumiTemplate
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
