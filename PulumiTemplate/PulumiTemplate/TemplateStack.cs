@@ -5,6 +5,7 @@ using Storage = Pulumi.AzureNative.Storage;
 using Sql = Pulumi.AzureNative.Sql;
 using KeyVault = Pulumi.AzureNative.KeyVault;
 using Web = Pulumi.AzureNative.Web;
+using Network = Pulumi.AzureNative.Network;
 using System.Diagnostics;
 
 namespace PulumiTemplate
@@ -92,7 +93,7 @@ namespace PulumiTemplate
                 ServerName = sqlServer.Name,
                 Sku = new Sql.Inputs.SkuArgs
                 {
-                    Name = "S3"
+                    Name = "S0"
                 }
             }, new CustomResourceOptions
             {
@@ -189,8 +190,8 @@ namespace PulumiTemplate
                 {
                     Capacity = 1,
                     Family = "B",
-                    Name = "S3",
-                    Size = "S3",
+                    Name = "S0",
+                    Size = "S0",
                     Tier = "Basic",
                 },
             });
@@ -215,6 +216,21 @@ namespace PulumiTemplate
             }, new CustomResourceOptions
             {
                 DependsOn = { appServicePlan }
+            });
+
+            string vnetName = $"{this.DeploymentName}-vnet";
+            var vnet = new Network.VirtualNetwork("virtualNetwork", new Network.VirtualNetworkArgs
+            {
+                AddressSpace = new Network.Inputs.AddressSpaceArgs
+                {
+                    AddressPrefixes =
+                {
+                    "10.0.0.0/16",
+                },
+                },
+                Location = Location,
+                ResourceGroupName = resourceGroup.Name,
+                VirtualNetworkName = vnetName
             });
         }
     }
