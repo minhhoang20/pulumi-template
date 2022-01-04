@@ -219,8 +219,10 @@ namespace PulumiTemplate
             });
 
             string vnetName = $"{this.DeploymentName}-vnet";
+            string subnetName = $"{this.DeploymentName}-subnet";
             var vnet = new Network.VirtualNetwork("virtualNetwork", new Network.VirtualNetworkArgs
             {
+                VirtualNetworkName = vnetName,
                 AddressSpace = new Network.Inputs.AddressSpaceArgs
                 {
                     AddressPrefixes =
@@ -229,8 +231,15 @@ namespace PulumiTemplate
                 },
                 },
                 Location = Location,
-                ResourceGroupName = resourceGroup.Name,
-                VirtualNetworkName = vnetName
+                ResourceGroupName = resourceGroup.Name,               
+                Subnets =
+                {
+                    new Network.Inputs.SubnetArgs
+                    {
+                        AddressPrefix = "10.0.0.0/24",
+                        Name = subnetName
+                    },
+                },
             });
         }
     }
